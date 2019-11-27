@@ -85,9 +85,7 @@ router.post('/update', function(req, res, next){
     str += `${key}='${reqData[key]}',` : null
   }
   str=str.substring(0,str.length-1)
-  console.log(str)
   let sqlStr = `update tag_list set ${str} where id=${reqData.id}`
-  console.log(sqlStr)
   let _resData = JSON.parse(JSON.stringify(resData))
   db.query(sqlStr,[],function(err,rows){
     if(!err){

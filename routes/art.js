@@ -16,10 +16,8 @@ router.post('/list', function(req, res, next){ //查询所有文章
   str=str.substring(0,str.length-1)
   let loginSql = `select * from art_list ${isWhere ? str: ''}`
   let _resData = JSON.parse(JSON.stringify(resData))
-  console.log(loginSql)
   db.query(loginSql,[],function(err,rows){
     if(rows){ //
-      console.log(rows)
       Object.assign(_resData,{
         data: rows
       })
@@ -93,7 +91,6 @@ router.post('/update', function(req, res, next){
     str += key+'=?,'
     sqlData.push(key)
   }
-  console.log(str)
   let sqlStr = `update art_list set ${str} where id=?`
   let _resData = JSON.parse(JSON.stringify(resData))
   db.query(sqlStr,sqlData,function(err,rows){

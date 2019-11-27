@@ -1,6 +1,7 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
+var session = require('express-session');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
@@ -15,18 +16,40 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+// session
+app.use(cookieParser('sessiontest'));
+app.use(session({
+  secret: 'sessiontest',
+  resave: true,
+  saveUninitialized: true,
+  cookie: {
+    maxAge: 60 * 60 * 1000  //过期时间，单位毫秒
+  }
+}))
+
+//
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 路由登录拦截
+app.use(function(req,res, next){
+  let url = req.originalUrl; //获取浏览器中当前访问的nodejs路由地址；
+  let currentUser = req.session['currentUser'];
+  if(url=='/users/login'&&!(currentUser==undefined)){ //通过判断控制用户登录后不能访问登录页面；
+      return res.redirect('/');//页面重定向；
+  }
+  next();
+})
+
+// node路由配置
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/art', artRouter)
 app.use('/tag', tagRouter)
 
-// catch 404 and forward to error handler
+// catch 404 and forward to error handler (捕获异常)
 app.use(function(req, res, next) {
   next(createError(404));
 });
