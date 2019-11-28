@@ -5,10 +5,10 @@ var session = require('express-session');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var artRouter = require('./routes/art')
-var tagRouter = require('./routes/tag')
+var AppUseRoute = require('./routes/index');
+// var usersRouter = require('./routes/admin/users');
+// var artRouter = require('./routes/admin/art')
+// var tagRouter = require('./routes/admin/tag')
 
 var app = express();
 
@@ -37,17 +37,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(function(req,res, next){
   let url = req.originalUrl; //获取浏览器中当前访问的nodejs路由地址；
   let currentUser = req.session['currentUser'];
-  if(url=='/users/login'&&!(currentUser==undefined)){ //通过判断控制用户登录后不能访问登录页面；
-      return res.redirect('/');//页面重定向；
+  console.log('currentUser: ============>  ', currentUser)
+  if(url.includes('/client')) {
+    console.log(url);
+    next();
+  } else if(currentUser==undefined && url !== '/users/login'){ //通过判断控制用户登录后不能访问登录页面；
+      // return res.redirect('/');//页面重定向；
+      return res.json({
+        code: 200,
+        message: '请登录',
+        success: false,
+      })
   }
-  next();
 })
 
 // node路由配置
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/art', artRouter)
-app.use('/tag', tagRouter)
+// app.use('/', indexRouter);
+// app.use('/users', usersRouter);
+// app.use('/art', artRouter)
+// app.use('/tag', tagRouter)
+AppUseRoute(app);
 
 // catch 404 and forward to error handler (捕获异常)
 app.use(function(req, res, next) {
